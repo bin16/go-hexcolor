@@ -24,7 +24,11 @@ func parseHexColor(s string) (clr color.RGBA) {
 		return
 	}
 
-	if len(s) == 3 {
+	if len(s) == 4 {
+		clr.A = rToB(s[3]) * 17
+	}
+
+	if len(s) == 3 || len(s) == 4 {
 		clr.R = rToB(s[0]) * 17
 		clr.G = rToB(s[1]) * 17
 		clr.B = rToB(s[2]) * 17
