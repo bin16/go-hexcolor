@@ -5,9 +5,9 @@ import (
 	"strings"
 )
 
-var Default = color.RGBA{255, 0, 255, 255} // Magenta
+var Default = color.NRGBA{255, 0, 255, 255} // Magenta
 
-func parseHexColor(s string) (clr color.RGBA) {
+func parseHexColor(s string) (clr color.NRGBA) {
 	clr = Default
 
 	s = strings.Trim(s, "# ")
