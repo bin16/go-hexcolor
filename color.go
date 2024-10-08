@@ -8,8 +8,8 @@ func (clr Color) RGBA() (r, g, b, a uint32) {
 	return Parse(string(clr)).RGBA()
 }
 
-func (clr Color) Color() color.Color {
-	return Parse(string(clr))
+func (clr Color) Color() color.NRGBA {
+	return parseHexColor(string(clr))
 }
 
 func New(s string) Color {
