@@ -1,6 +1,7 @@
 package hexcolor
 
 import (
+	"bytes"
 	"encoding/json"
 	"testing"
 
@@ -8,62 +9,112 @@ import (
 )
 
 func TestColor(t *testing.T) {
-	type colorData struct {
-		Color Color `json:"color"`
+	type data struct {
+		Color Color
 	}
 
-	var sl = []string{
-		"#229896",
-		"#371862",
-		"#291",
-		"#8901",
-		"#1987a706",
-		"#279ff281",
-		"123",
-		"#120938112310-923",
+	var colors = []string{
+		"#DCE0D9",
+		"#31081F",
+		"#6B0F1A",
+		"#595959",
+		"#808F85",
+		"#123",
+		"#1234",
+		"#123456",
+		"#12345678",
+		"#F0F0F0",
+		"#F0F0F0F0",
+		"#0F0F0F",
+		"#0F0F0F0F",
+		"#aaa",
+		"#aaaa",
+		"#bbb",
+		"#000",
+		"#0000",
+		"#000000",
+		"#00000000",
 	}
 
-	for _, s := range sl {
-		var c1 = New(s)
-		var c2 = Parse(s)
-
-		var r1, g1, b1, a1 = c1.RGBA()
-		var r2, g2, b2, a2 = c2.RGBA()
-
-		var n1 = parseHexColor(s)
-		var n2 = c1.Color()
-		assert.Equal(t, n1, n2)
-
-		assert.Equal(t,
-			[]uint32{r1, g1, b1, a1},
-			[]uint32{r2, g2, b2, a2},
+	for _, s := range colors {
+		var (
+			c1 = New(s)
+			c2 = Parse(s)
 		)
 
-		var j1 = colorData{c1}
-		var bt, err = json.Marshal(j1)
-		assert.NoError(t, err)
+		assert.Equal(t, c1.NRGBA, c2)
 
-		var j2 = colorData{}
-		assert.NoError(t, json.Unmarshal(bt, &j2))
+		var d1 = data{c1}
 
-		assert.Equal(t, j1, j2)
+		var raw, err1 = json.Marshal(d1)
+		assert.NoError(t, err1)
+
+		assert.True(t, bytes.Contains(
+			raw,
+			[]byte(`"`+ToString(c1.NRGBA)+`"`),
+		))
+
+		var d2 = data{}
+
+		var err2 = json.Unmarshal(raw, &d2)
+		assert.NoError(t, err2)
+
+		assert.Equal(t, d1, d2)
 	}
 }
 
-func TestInvalidColors(t *testing.T) {
-	var sl = []string{
-		"",
-		"1",
-		"12",
-		"12345",
-		"1234567",
-		"123456789",
-		"(*)UY()09i011213",
+func TestUnmarshal(t *testing.T) {
+	var badColors = []string{
+		`""`,
+		`#`,
+		`123`,
+		`#1Fx@`,
+		`"123`,
+		`123"`,
+		`//////`,
 	}
 
-	for _, s := range sl {
-		var c1 = New(s)
+	for _, s := range badColors {
+		var c1 = Color{}
+		assert.NoError(t, c1.UnmarshalJSON([]byte(s)))
+	}
+}
 
-		assert.Equal(t, c1.Color(), Default, s)
+func TestMarshal(t *testing.T) {
+	var colors = []string{
+		"#DCE0D9",
+		"#31081F",
+		"#6B0F1A",
+		"#595959",
+		"#808F85",
+		"#123",
+		"#1234",
+		"#123456",
+		"#12345678",
+		"#F0F0F0",
+		"#F0F0F0F0",
+		"#0F0F0F",
+		"#0F0F0F0F",
+		"#aaa",
+		"#aaaa",
+		"#bbb",
+		"#000",
+		"#0000",
+		"#000000",
+		"#00000000",
+	}
+
+	for _, s := range colors {
+		var c = New(s)
+		var b1, err = c.MarshalJSON()
+		assert.NoError(t, err, s)
+
+		assert.Equal(t, `"`+c.String()+`"`, string(b1))
+
+		b1 = bytes.Trim(b1, `"`)
+		var c1 = parseHexColor(s)
+		var c2 = parseBytes(b1)
+
+		assert.Equal(t, c1, c2, "%v (%s) != %v (%s)\n", c1, s, c2, b1)
 	}
 }

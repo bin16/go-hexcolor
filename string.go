@@ -2,9 +2,9 @@ package hexcolor
 
 import "image/color"
 
-func ToString(clr color.NRGBA) string {
+func toBytes(clr color.NRGBA) []byte {
 	if clr.A == 0xFF {
-		return string([]byte{
+		return []byte{
 			'#',
 			bToR(clr.R / 16),
 			bToR(clr.R % 16),
@@ -12,10 +12,10 @@ func ToString(clr color.NRGBA) string {
 			bToR(clr.G % 16),
 			bToR(clr.B / 16),
 			bToR(clr.B % 16),
-		})
+		}
 	}
 
-	return string([]byte{
+	return []byte{
 		'#',
 		bToR(clr.R / 16),
 		bToR(clr.R % 16),
@@ -25,5 +25,9 @@ func ToString(clr color.NRGBA) string {
 		bToR(clr.B % 16),
 		bToR(clr.A / 16),
 		bToR(clr.A % 16),
-	})
+	}
+}
+
+func ToString(clr color.NRGBA) string {
+	return string(toBytes(clr))
 }

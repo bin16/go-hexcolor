@@ -8,7 +8,12 @@ var (
 	Default = color.NRGBA{}
 )
 
-func parseHexColor(s string) (clr color.NRGBA) {
+const (
+	quote = '"'
+	hash  = '#'
+)
+
+func parseBytes(s []byte) (clr color.NRGBA) {
 	clr = Default
 
 	if len(s) < 3 {
@@ -19,7 +24,7 @@ func parseHexColor(s string) (clr color.NRGBA) {
 		s = s[1:]
 	}
 
-	if len(s) == 6 || len(s) == 3 {
+	if len(s) == 3 || len(s) == 6 {
 		clr.A = 0xFF
 	}
 
@@ -50,25 +55,8 @@ func parseHexColor(s string) (clr color.NRGBA) {
 	return
 }
 
-func rToB(r uint8) uint8 {
-	switch {
-	case r >= 'a' && r <= 'f':
-		return r - 'a' + 10
-	case r >= 'A' && r <= 'F':
-		return r - 'A' + 10
-	case r >= '0' && r <= '9':
-		return r - '0'
-	}
-
-	return 0x0
-}
-
-func bToR(b uint8) uint8 {
-	if b <= 9 {
-		return b + '0'
-	}
-
-	return b - 10 + 'A'
+func parseHexColor(s string) (clr color.NRGBA) {
+	return parseBytes([]byte(s))
 }
 
 func Parse(s string) color.NRGBA {
