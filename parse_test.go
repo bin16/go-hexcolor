@@ -98,11 +98,24 @@ func TestRToB(t *testing.T) {
 	assert.Equal(t, byte(0x0), rToB('j'))
 }
 
-func BenchmarkRToB(b *testing.B) {
-	var u = "0123456789abcdefABCDEF.x*&/="
+func TestSafeParse(t *testing.T) {
+	var badColors = []string{
+		"#",
+		"#1",
+		"#12",
+		"#12345",
+		"#1234567",
+		"#123456789",
+		"#......",
+		"#@!X272",
+		"#12345G",
+		"#12345X",
+		"#XXXXXX",
+		"#7H789F",
+	}
 
-	for i := 0; i < b.N; i++ {
-		rToB(u[i%len(u)])
+	for _, s := range badColors {
+		assert.Equal(t, SafeParse(s), Default)
 	}
 }
 
@@ -142,5 +155,44 @@ func BenchmarkParse(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		Parse(u[i%len(u)])
+	}
+}
+
+func BenchmarkSafeParse(b *testing.B) {
+	var u = []string{
+		"#012345",
+		"#12345611",
+		"#234567",
+		"#34567833",
+		"#456789",
+		"#56789a55",
+		"#6789aB",
+		"#789AbC77",
+		"#89aBcD",
+		"#9AbCdE99",
+		"#aBcDeF",
+		"#bCdEf0bb",
+		"#cDeF01",
+		"#dEf012dd",
+		"#eF0123",
+		"#f01234ff",
+		"012",
+		"#123",
+		"234",
+		"#345",
+		"567",
+		"#789",
+		"89A",
+		"#9aB",
+		"#ABC",
+		"#bcd",
+		"#dEF",
+		"eFa",
+		"FA0",
+		"#A01",
+	}
+
+	for i := 0; i < b.N; i++ {
+		SafeParse(u[i%len(u)])
 	}
 }

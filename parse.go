@@ -2,15 +2,26 @@ package hexcolor
 
 import (
 	"image/color"
-	"strings"
 )
 
-var Default = color.NRGBA{255, 0, 255, 255} // Magenta
+var (
+	Default = color.NRGBA{}
+)
 
 func parseHexColor(s string) (clr color.NRGBA) {
 	clr = Default
 
-	s = strings.Trim(s, "# ")
+	if len(s) < 3 {
+		return
+	}
+
+	if s[0] == '#' {
+		s = s[1:]
+	}
+
+	if len(s) == 6 || len(s) == 3 {
+		clr.A = 0xFF
+	}
 
 	if len(s) == 8 {
 		clr.A = (rToB(s[6]) << 4) + rToB(s[7])
@@ -52,6 +63,22 @@ func rToB(r uint8) uint8 {
 	return 0x0
 }
 
-func Parse(s string) color.Color {
+func bToR(b uint8) uint8 {
+	if b <= 9 {
+		return b + '0'
+	}
+
+	return b - 10 + 'A'
+}
+
+func Parse(s string) color.NRGBA {
 	return parseHexColor(s)
+}
+
+func SafeParse(s string) color.NRGBA {
+	if IsValid(s) {
+		return parseHexColor(s)
+	}
+
+	return Default
 }
